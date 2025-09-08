@@ -1,5 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light dark;
+}
+
 body {
-  background: var(--tg-theme-secondary-bg-color, white);
+  background: var(--tg-theme-bg-color, #ffffff);
+  color: var(--tg-theme-text-color, #000000);
   padding: 0;
   margin: 0;
+}
+
+a { color: var(--tg-theme-link-color, #0b65c6); }
+
+/* Subtle borders use hint color */
+.tg-border { border-color: color-mix(in oklab, var(--tg-theme-hint-color, #999) 40%, transparent); }
+
+/* Secondary surfaces */
+.tg-surface {
+  background-color: color-mix(in oklab, var(--tg-theme-secondary-bg-color, #f5f5f5) 100%, transparent);
 }
