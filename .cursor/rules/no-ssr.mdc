@@ -1,0 +1,19 @@
+---
+description: "Запрет SSR — Mini App только CSR"
+globs:
+  - "app/**/*"
+  - "components/**/*"
+alwaysApply: true
+---
+
+> 🚫 **Строго запрещено использовать:**
+> - `getServerSideProps`
+> - `getStaticProps`
+> - `getServerSession`
+> - `generateMetadata` без `dynamic: 'force-dynamic'`
+> 
+> ✅ **Обязательно:**
+> - Все компоненты должны начинаться с `'use client'`.
+> - Вся логика — на клиенте, через `useEffect`, `useState`, `useRouter`, `useQuery`, `useMutation`.
+> - Авторизация — через `initData` → API-роут → клиентская сессия.
+> - Если нужно получить данные при загрузке — используй `useEffect` + `useQuery` (React Query).

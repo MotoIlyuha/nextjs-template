@@ -13,6 +13,7 @@ import {
   retrieveLaunchParams,
   emitEvent,
 } from '@telegram-apps/sdk-react';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * Initializes the application and configures its dependencies.
@@ -79,4 +80,21 @@ export async function init(options: {
       bindViewportCssVars();
     });
   }
+}
+
+// Supabase client (browser)
+let supabaseClient: SupabaseClient | null = null;
+export function getSupabase(): SupabaseClient {
+  if (!supabaseClient) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
+    if (!url || !anonKey) {
+      throw new Error('Supabase env vars are missing');
+    }
+    console.info('[supabase] Creating browser client');
+    supabaseClient = createClient(url, anonKey, {
+      auth: { persistSession: true, autoRefreshToken: true },
+    });
+  }
+  return supabaseClient;
 }

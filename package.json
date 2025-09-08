@@ -10,6 +10,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.57.2",
+    "@tanstack/react-query": "^5.87.1",
     "@telegram-apps/sdk-react": "^3.2.4",
     "@telegram-apps/telegram-ui": "^2.1.5",
     "@tonconnect/ui-react": "^2.1.0",
@@ -18,10 +20,12 @@
     "next-intl": "^4.1.0",
     "normalize.css": "^8.0.1",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/pg": "^8.15.5",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",

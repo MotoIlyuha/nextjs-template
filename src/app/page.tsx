@@ -1,63 +1,50 @@
 'use client';
 
-import { Section, Cell, Image, List } from '@telegram-apps/telegram-ui';
-import { useTranslations } from 'next-intl';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { initDataState as _initDataState, useSignal } from '@telegram-apps/sdk-react';
+import { useQuery } from '@tanstack/react-query';
 
-import { Link } from '@/components/Link/Link';
-import { LocaleSwitcher } from '@/components/LocaleSwitcher/LocaleSwitcher';
-import { Page } from '@/components/Page';
+export default function RootPage() {
+  const router = useRouter();
+  const initData = useSignal(_initDataState);
 
-import tonSvg from './_assets/ton.svg';
+  const tgId = initData?.user?.id;
 
-export default function Home() {
-  const t = useTranslations('i18n');
+  const { data, isFetching } = useQuery({
+    queryKey: ['check-teacher', tgId],
+    queryFn: async () => {
+      if (!tgId) return { exists: false };
+      const res = await fetch(`/api/check-teacher?user_id=${tgId}`, { cache: 'no-store' });
+      const json = await res.json().catch(() => ({}));
+      return res.ok ? json : { exists: false };
+    },
+    enabled: Boolean(tgId),
+    retry: 0,
+    staleTime: 30_000,
+  });
+
+  useEffect(() => {
+    let aborted = false;
+    const timeout = setTimeout(() => {
+      if (!aborted && !isFetching && !data) router.replace('/onboarding');
+    }, 800);
+
+    if (tgId && !isFetching && data) {
+      if (data.exists) router.replace('/app');
+      else router.replace('/onboarding');
+    }
+    return () => {
+      aborted = true;
+      clearTimeout(timeout);
+    };
+  }, [tgId, isFetching, data, router]);
 
   return (
-    <Page back={false}>
-      <List>
-        <Section
-          header="Features"
-          footer="You can use these pages to learn more about features, provided by Telegram Mini Apps and other useful projects"
-        >
-          <Link href="/ton-connect">
-            <Cell
-              before={
-                <Image
-                  src={tonSvg.src}
-                  style={{ backgroundColor: '#007AFF' }}
-                  alt="TON Logo"
-                />
-              }
-              subtitle="Connect your TON wallet"
-            >
-              TON Connect
-            </Cell>
-          </Link>
-        </Section>
-        <Section
-          header="Application Launch Data"
-          footer="These pages help developer to learn more about current launch information"
-        >
-          <Link href="/init-data">
-            <Cell subtitle="User data, chat information, technical data">
-              Init Data
-            </Cell>
-          </Link>
-          <Link href="/launch-params">
-            <Cell subtitle="Platform identifier, Mini Apps version, etc.">
-              Launch Parameters
-            </Cell>
-          </Link>
-          <Link href="/theme-params">
-            <Cell subtitle="Telegram application palette information">
-              Theme Parameters
-            </Cell>
-          </Link>
-        </Section>
-        <Section header={t('header')} footer={t('footer')}>
-          <LocaleSwitcher />
-        </Section>
-      </List>
-    </Page>
+    <div className="flex min-h-dvh items-center justify-center p-4 text-sm text-white/70">
+      Загрузка…
+    </div>
   );
 }
+
+
