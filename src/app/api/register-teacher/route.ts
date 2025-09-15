@@ -5,7 +5,6 @@ interface RegisterBody {
   user: {
     id: number;
     first_name?: string;
-    last_name?: string;
     username?: string;
     photo_url?: string;
   };
@@ -48,7 +47,6 @@ export async function POST(request: Request): Promise<Response> {
       user_metadata: {
         telegram_id: user.id,
         first_name: user.first_name,
-        last_name: user.last_name,
         username: user.username,
         photo_url: user.photo_url,
       },
@@ -63,14 +61,13 @@ export async function POST(request: Request): Promise<Response> {
       id: created.user.id,
       telegram_id: user.id,
       first_name: user.first_name ?? null,
-      last_name: user.last_name ?? null,
       username: user.username ?? null,
       photo_url: user.photo_url ?? null,
       created_at: new Date().toISOString(),
     };
 
     const { error: insertError } = await supabase
-      .from('users')
+      .from('teachers')
       .upsert(userRow, { onConflict: 'id' });
     if (insertError) {
       console.error('[register-teacher] insert users error:', insertError.message);

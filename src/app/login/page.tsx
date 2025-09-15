@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { initDataRaw as _initDataRaw, useSignal } from '@telegram-apps/sdk-react';
 import { useRouter } from 'next/navigation';
-import { setSupabaseSession } from '@/core/auth';
+import { loginWithInitData } from '@/core/telegramAuth';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,19 +18,7 @@ export default function LoginPage() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch('/api/auth/telegram', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ initData: initDataRaw }),
-        });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data?.error || 'Auth failed');
-        }
-        const data = await res.json();
-        if (data?.session) {
-          await setSupabaseSession(data.session);
-        }
+        await loginWithInitData(initDataRaw);
         if (!aborted) {
           router.replace('/app');
         }

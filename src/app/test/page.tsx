@@ -7,10 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Calendar } from '@/components/ui/calendar';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function TestPage() {
   const theme = useSignal(_themeParams.state);
+  const router = useRouter();
 
   const rows = useMemo(() => Object.entries(theme ?? {}).filter(([, v]) => v != null), [theme]);
 
@@ -24,7 +25,7 @@ export default function TestPage() {
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Кнопки</h2>
         <div className="flex flex-wrap gap-3">
-          <Button>Default</Button>
+          <Button onClick={() => router.push('/students')}>Default</Button>
           <Button variant="outline">Outline</Button>
           <Button variant="secondary">Secondary</Button>
           <Button variant="destructive">Destructive</Button>
