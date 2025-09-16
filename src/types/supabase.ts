@@ -39,38 +39,223 @@ export type Database = {
   }
   public: {
     Tables: {
-      students: {
+      lesson_templates: {
         Row: {
-          auto_pay: boolean | null
           created_at: string | null
-          email: string | null
-          first_name: string
+          day_of_week: number
+          duration_minutes: number
           id: string
-          last_name: string | null
-          phone: string | null
-          price_per_lesson: number
+          is_active: boolean | null
+          note: string | null
+          price: number
+          start_time: string
+          student_id: string
+          subject: string
           teacher_id: string
         }
         Insert: {
-          auto_pay?: boolean | null
           created_at?: string | null
-          email?: string | null
-          first_name: string
+          day_of_week: number
+          duration_minutes: number
           id?: string
-          last_name?: string | null
-          phone?: string | null
-          price_per_lesson: number
+          is_active?: boolean | null
+          note?: string | null
+          price: number
+          start_time: string
+          student_id: string
+          subject: string
           teacher_id: string
         }
         Update: {
-          auto_pay?: boolean | null
           created_at?: string | null
-          email?: string | null
+          day_of_week?: number
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean | null
+          note?: string | null
+          price?: number
+          start_time?: string
+          student_id?: string
+          subject?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_templates_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_templates_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lessons: {
+        Row: {
+          created_at: string | null
+          end_time: string
+          id: string
+          note: string | null
+          price: number
+          start_time: string
+          status: string
+          student_id: string
+          subject: string
+          teacher_id: string
+          template_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          end_time: string
+          id?: string
+          note?: string | null
+          price: number
+          start_time: string
+          status?: string
+          student_id: string
+          subject: string
+          teacher_id: string
+          template_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          end_time?: string
+          id?: string
+          note?: string | null
+          price?: number
+          start_time?: string
+          status?: string
+          student_id?: string
+          subject?: string
+          teacher_id?: string
+          template_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lessons_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lessons_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_contacts: {
+        Row: {
+          created_at: string | null
+          id: string
+          student_id: string
+          type: Database["public"]["Enums"]["ContactType"]
+          value: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          student_id: string
+          type: Database["public"]["Enums"]["ContactType"]
+          value: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          student_id?: string
+          type?: Database["public"]["Enums"]["ContactType"]
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_contacts_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_relations: {
+        Row: {
+          contact_type: Database["public"]["Enums"]["ContactType"]
+          contact_value: string
+          created_at: string | null
+          id: string
+          relation_name: string
+          student_id: string
+        }
+        Insert: {
+          contact_type: Database["public"]["Enums"]["ContactType"]
+          contact_value: string
+          created_at?: string | null
+          id?: string
+          relation_name: string
+          student_id: string
+        }
+        Update: {
+          contact_type?: Database["public"]["Enums"]["ContactType"]
+          contact_value?: string
+          created_at?: string | null
+          id?: string
+          relation_name?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_relations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      students: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          first_name: string
+          id: string
+          is_online: boolean | null
+          last_name: string | null
+          teacher_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          first_name: string
+          id?: string
+          is_online?: boolean | null
+          last_name?: string | null
+          teacher_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
           first_name?: string
           id?: string
+          is_online?: boolean | null
           last_name?: string | null
-          phone?: string | null
-          price_per_lesson?: number
           teacher_id?: string
         }
         Relationships: [
@@ -89,6 +274,7 @@ export type Database = {
           first_name: string
           id: string
           photo_url: string | null
+          telegram_id: number
           username: string | null
         }
         Insert: {
@@ -96,41 +282,13 @@ export type Database = {
           first_name: string
           id: string
           photo_url?: string | null
+          telegram_id: number
           username?: string | null
         }
         Update: {
           created_at?: string | null
           first_name?: string
           id?: string
-          photo_url?: string | null
-          username?: string | null
-        }
-        Relationships: []
-      }
-      users: {
-        Row: {
-          created_at: string
-          first_name: string | null
-          id: string
-          last_name: string | null
-          photo_url: string | null
-          telegram_id: number
-          username: string | null
-        }
-        Insert: {
-          created_at?: string
-          first_name?: string | null
-          id: string
-          last_name?: string | null
-          photo_url?: string | null
-          telegram_id: number
-          username?: string | null
-        }
-        Update: {
-          created_at?: string
-          first_name?: string | null
-          id?: string
-          last_name?: string | null
           photo_url?: string | null
           telegram_id?: number
           username?: string | null
@@ -145,7 +303,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      ContactType:
+        | "phone"
+        | "email"
+        | "telegram"
+        | "whatsapp"
+        | "viber"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -275,6 +439,8 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      ContactType: ["phone", "email", "telegram", "whatsapp", "viber", "other"],
+    },
   },
 } as const

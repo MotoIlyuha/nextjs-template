@@ -39,7 +39,7 @@ export default function RootPage() {
 
         // Шаг 2: пользователь существует — выполняем авторизацию и переходим в приложение
         await loginWithInitData(initDataRaw);
-        if (!aborted) router.replace('/app');
+        if (!aborted) router.replace('/test');
       } catch (e: unknown) {
         if (!aborted) {
           setError(e instanceof Error ? e.message : 'Unknown error');

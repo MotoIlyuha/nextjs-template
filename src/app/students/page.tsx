@@ -1,10 +1,12 @@
 'use client';
 
 import { useSignal, themeParams as _tp } from '@telegram-apps/sdk-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStudents } from '@/hooks/useStudents';
 import { useUIStore } from '@/stores/uiStore';
 import { Button } from '@/components/ui/button';
+import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import StudentForm from '@/components/student-form';
 import { createClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
@@ -13,6 +15,8 @@ export default function StudentsPage() {
   const { isStudentFormOpen, openStudentForm, closeStudentForm } = useUIStore();
   const router = useRouter();
   const [teacherId, setTeacherId] = useState<string | null>(null);
+  const [color, setColor] = useState<string>('#226095');
+  const hiddenColorInputRef = useRef<HTMLInputElement | null>(null);
 
   // Инициализация teacherId из сессии Supabase (локально, без Zustand)
   useEffect(() => {
@@ -63,17 +67,39 @@ export default function StudentsPage() {
         </div>
       )}
 
-      {isStudentFormOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-xl tg-border border tg-surface p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Добавить ученика</h2>
-              <button onClick={closeStudentForm} className="text-sm opacity-70">Закрыть</button>
+      <Drawer open={isStudentFormOpen} onOpenChange={(o) => (o ? openStudentForm() : closeStudentForm())}>
+        <DrawerContent>
+          <DrawerHeader>
+            <div className="flex items-center gap-3">
+              <DrawerTitle>Добавить ученика</DrawerTitle>
+              <button
+                type="button"
+                aria-label="Выбрать цвет"
+                className="h-6 w-6 rounded-md border tg-border"
+                style={{ backgroundColor: color }}
+                onClick={() => hiddenColorInputRef.current?.click()}
+              />
+              <input
+                ref={hiddenColorInputRef}
+                type="color"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                className="hidden"
+                aria-hidden
+                tabIndex={-1}
+              />
             </div>
-            <StudentForm teacherId={teacherIdSafe} />
-          </div>
-        </div>
-      )}
+            <DrawerClose asChild>
+              <button className="text-sm opacity-70">Закрыть</button>
+            </DrawerClose>
+          </DrawerHeader>
+          <ScrollArea className="h-[80vh]">
+            <div className="p-4 pt-0 pb-20">
+              <StudentForm teacherId={teacherIdSafe} color={color} />
+            </div>
+          </ScrollArea>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }

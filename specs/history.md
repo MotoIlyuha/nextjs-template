@@ -1,3 +1,11 @@
+# 📜 История разработки проекта "Репетитор-менеджер"
+
+> Этот файл — живой журнал архитектурных решений, реализованных шагов и изменений.  
+> Каждая запись привязана к коммиту в Git.  
+> Формат вдохновлён [ADR (Architecture Decision Records)](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) и [Keep a Changelog](https://keepachangelog.com/).
+
+---
+
 ## 🆔 20250907-01
 
 **Дата:** 2025-09-07  
@@ -25,6 +33,8 @@
 - Стили должны соответствовать `tailwind.config.js` шаблона.
 - Нельзя использовать SSR — только CSR.
 
+---
+
 ## 🆔 20250908-01
 
 **Дата:** 2025-09-08  
@@ -34,35 +44,40 @@
 **Ссылка:** [commit:20250908-01](https://github.com/username/tutor-manager/commit/20250908-01)
 
 ### 📖 Контекст
-Нужно обеспечить авторизацию через Telegram, регистрацию пользователя в Supabase, хранение профиля в таблице `public.users` с RLS, а также показывать онбординг только новым пользователям. Оптимизировать проверку существования и улучшить UX запуска приложения.
+Нужно обеспечить авторизацию через Telegram, регистрацию пользователя в Supabase, хранение профиля в таблице `public.teachers` с RLS, а также показывать онбординг только новым пользователям. Оптимизировать проверку существования и улучшить UX запуска приложения.
 
 ### ✅ Решение
-- Добавлены API-роуты:
-  - `app/api/auth/telegram/route.ts` — прокси к Edge Function для валидации initData и выдачи сессии.
-  - `app/api/check-teacher/route.ts` — проверка наличия пользователя по `telegram_id` (service_role, HEAD+count).
-  - `app/api/register-teacher/route.ts` — создание `auth.users` (admin), upsert профиля в `public.users`, откат при ошибке, возврат реальной сессии через `signInWithPassword`.
-- Страницы:
-  - `app/onboarding/page.tsx` — онбординг с TMA initData, кнопками (shadcn/ui), Zustand для загрузки.
-  - `app/login/page.tsx` — отправка initData и установка сессии Supabase.
-  - `app/page.tsx` — проверка пользователя при входе и редирект (React Query).
-  - `app/terms/page.tsx`, `app/privacy/page.tsx` — заглушки для документов.
-- Инфраструктура:
-  - Клиенты Supabase: браузерный (`getSupabase`) и серверный (`getSupabaseAdmin/getSupabaseAnon`).
-  - Включён React Query провайдер (`QueryProvider`).
-  - Кастомная кнопка на базе shadcn/ui (`components/ui/button.tsx`).
-- База данных (подготовлено к применению):
-  - Таблица `public.users (id uuid PK → auth.users, telegram_id text, first_name, last_name, username, photo_url, created_at)`.
-  - Индекс по `telegram_id`.
-  - RLS политики: select/update/insert только для `id = auth.uid()`.
+Добавлены API-роуты:
+- `app/api/auth/telegram/route.ts` — прокси к Edge Function для валидации initData и выдачи сессии.
+- `app/api/check-teacher/route.ts` — проверка наличия пользователя по `telegram_id` (service_role, HEAD+count).
+- `app/api/register-teacher/route.ts` — создание `auth.users` (admin), upsert профиля в `public.teachers`, откат при ошибке, возврат реальной сессии через `signInWithPassword`.
+
+Страницы:
+- `app/onboarding/page.tsx` — онбординг с TMA initData, кнопками (shadcn/ui), Zustand для загрузки.
+- `app/login/page.tsx` — отправка initData и установка сессии Supabase.
+- `app/page.tsx` — проверка пользователя при входе и редирект (React Query).
+- `app/terms/page.tsx`, `app/privacy/page.tsx` — заглушки для документов.
+
+Инфраструктура:
+- Клиенты Supabase: браузерный (`getSupabase`) и серверный (`getSupabaseAdmin/getSupabaseAnon`).
+- Включён React Query провайдер (`QueryProvider`).
+- Кастомная кнопка на базе shadcn/ui (`components/ui/button.tsx`).
+
+База данных (подготовлено к применению):
+- Таблица `public.teachers` (`id uuid PK → auth.users`, `first_name`, `username`, `photo_url`, `created_at`).
+- Индекс по `id`.
+- RLS политики: select/update/insert только для `id = auth.uid()`.
 
 ### ↔️ Альтернативы
-- Проверять существование через клиентский anon-клиент и RLS → может давать ложные отрицания и сложнее в отладке. Выбрали service_role на сервере.
-- Хранить `telegram_id` как bigint → риск потери точности в JS. Выбрали текст.
+- Проверять существование через клиентский anon-клиент и RLS → отклонено, может давать ложные отрицания.
+- Хранить `telegram_id` как bigint → отклонено, риск потери точности в JS. Выбран текст.
 
 ### ⚠️ Последствия
 - В окружении должны быть заданы: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (только на сервере), `SUPABASE_AUTH_TELEGRAM_URL` (+ опционально `SUPABASE_AUTH_TELEGRAM_SECRET`).
 - Email/Password провайдер в Supabase должен быть включён.
 - Онбординг показывается только новым пользователям; существующие попадают сразу в `/app`.
+
+---
 
 ## 🆔 20250908-02
 
@@ -82,10 +97,12 @@
 - Временный редирект с корня (`/`) на `/test` для быстрого тестирования палитры.
 
 ### ↔️ Альтернативы
-- Использовать только `@telegram-apps/telegram-ui` — меньше контроля над Tailwind-классами и шадкн-экосистемой.
+- Использовать только `@telegram-apps/telegram-ui` → отклонено, меньше контроля над Tailwind-классами и шадкн-экосистемой.
 
 ### ⚠️ Последствия
 - Tailwind требуется в глобальных стилях; компоненты используют CSS-переменные Telegram, поэтому внешний вид соответствует текущей теме Telegram.
+
+---
 
 ## 🆔 20250915-01
 
@@ -99,16 +116,18 @@
 Нужно завершить серверную часть авторизации через Telegram Mini App на Supabase Edge, а также улучшить UX старта: не создавать сессию для новых пользователей до подтверждения (кнопка «Начать»), и корректно маршрутизировать существующих пользователей сразу в приложение.
 
 ### ✅ Решение
-- Edge Function `supabase/functions/telegram-auth/index.ts`:
-  - Валидация секрета (переменные без префикса `SUPABASE_`: `SB_URL`, `SB_ANON_KEY`, `SB_SERVICE_ROLE_KEY`, `EDGE_AUTH_TELEGRAM_SECRET`).
-  - Создание/поиск пользователя в `auth.users` через Admin API (c fallback на `listUsers`).
-  - Upsert в `public.teachers` с обязательным `telegram_id`.
-  - Возврат реальной сессии (access/refresh tokens). Логи об успешном входе.
-- Авто-маршрутизация на старте (`app/page.tsx`):
-  - Сначала проверка наличия учителя по `telegram_id` → новый пользователь попадает на `/onboarding` без создания сессии.
-  - Существующий — авторизуется через `/api/auth/telegram` и попадает на `/app`.
-- Онбординг (`app/onboarding/page.tsx`):
-  - Кнопка «Начать» регистрирует в Supabase и устанавливает сессию.
+Edge Function `supabase/functions/telegram-auth/index.ts`:
+- Валидация секрета (переменные без префикса `SUPABASE_`: `SB_URL`, `SB_ANON_KEY`, `SB_SERVICE_ROLE_KEY`, `EDGE_AUTH_TELEGRAM_SECRET`).
+- Создание/поиск пользователя в `auth.users` через Admin API (с fallback на `listUsers`).
+- Upsert в `public.teachers` с обязательным `telegram_id`.
+- Возврат реальной сессии (access/refresh tokens). Логи об успешном входе.
+
+Авто-маршрутизация на старте (`app/page.tsx`):
+- Сначала проверка наличия учителя по `telegram_id` → новый пользователь попадает на `/onboarding` без создания сессии.
+- Существующий — авторизуется через `/api/auth/telegram` и попадает на `/app`.
+
+Онбординг (`app/onboarding/page.tsx`):
+- Кнопка «Начать» регистрирует в Supabase и устанавливает сессию.
 
 ### ↔️ Альтернативы
 - Создавать сессию сразу для всех пользователей → отклонено, нужен явный opt-in перед созданием учётки.
@@ -116,6 +135,8 @@
 ### ⚠️ Последствия
 - Требуются корректно заданные секреты в функции и `.env.local`.
 - Поведение старта отличается для новых и существующих пользователей (ожидаемо).
+
+---
 
 ## 🆔 20250915-02
 
@@ -129,17 +150,98 @@
 Снизить риски злоупотребления API, улучшить наблюдаемость, убрать серверное состояние из Zustand и привести имена к правилам воркспейса.
 
 ### ✅ Решение
-- API:
-  - `/api/auth/telegram` и `/api/check-teacher` — простой in-memory rate limit и логи успешного входа.
-- Students:
-  - `app/students/page.tsx` — `teacherId` берётся из `supabase.auth.getSession()` локально (без Zustand), передаётся в `useStudents` (RLS-friendly).  
-- Именование:
-  - Компонент формы: `components/student-form.tsx` (переименовано с `StudentForm.tsx`).
-- Повторное использование логики:
-  - Создан `core/telegramAuth.ts` с `loginWithInitData(...)` и подключен в `/page.tsx` и `/login`.
+API:
+- `/api/auth/telegram` и `/api/check-teacher` — простой in-memory rate limit и логи успешного входа.
+
+Students:
+- `app/students/page.tsx` — `teacherId` берётся из `supabase.auth.getSession()` локально (без Zustand), передаётся в `useStudents` (RLS-friendly).
+
+Именование:
+- Компонент формы: `components/student-form.tsx` (переименовано с `StudentForm.tsx`).
+
+Повторное использование логики:
+- Создан `core/telegramAuth.ts` с `loginWithInitData(...)` и подключен в `/page.tsx` и `/login`.
 
 ### ↔️ Альтернативы
 - Держать `teacherId` в Zustand → отклонено (серверное состояние должно оставаться в React Query/клиенте Supabase).
 
 ### ⚠️ Последствия
 - Rate limit — на процесс, не кластероустойчив, для продакшена потребуется внешний стор (Redis/Upstash).
+
+---
+
+## 🆔 20250917-01
+
+**Дата:** 2025-09-17  
+**Статус:** ✅ Реализовано  
+**Модуль:** pricing, architecture, students  
+**Заголовок:** Перенос цены за занятие из учеников в расписание — динамическое ценообразование  
+**Ссылка:** [commit:20250917-01](https://github.com/username/tutor-manager/commit/20250917-01)
+
+### 📖 Контекст
+Хранение цены за занятие в таблице `students` ограничивало гибкость: невозможно менять цену для одного занятия, давать скидки, отслеживать историю. Требовалась модель, где цена привязана к конкретному событию, а не к пользователю.
+
+### ✅ Решение
+- **Удалено поле `price_per_lesson` из таблицы `students`.**
+- Добавлены новые таблицы:
+  - `lesson_templates` — шаблоны повторяющихся занятий (день недели, время, цена)
+  - `lessons` — реальные занятия с фиксированной ценой на момент проведения
+- Цена теперь хранится в `lessons.price` — точная, неизменяемая после создания.
+- Цель: возможность задавать разные цены за одно и то же занятие у одного ученика (например, базовый тариф vs интенсив vs скидка).
+
+### ↔️ Альтернативы
+- Хранить цену в `students` и наследовать её → отклонено, потеря гибкости.
+- Хранить историю цен в отдельной таблице → отложено до v2.
+
+### ⚠️ Последствия
+- Все новые занятия должны создаваться с явным указанием цены.
+- Отчётность по доходам теперь работает корректно.
+- Поддержка скидок, индивидуальных тарифов — теперь возможна.
+- Модуль “Ученики” больше не содержит финансовую информацию — чёткое разделение ответственности.
+
+---
+
+## 🆔 20250917-02
+
+**Дата:** 2025-09-17  
+**Статус:** ✅ Реализовано  
+**Модуль:** database, students  
+**Заголовок:** Добавление таблиц `student_contacts` и `student_relations` для гибкого управления контактами  
+**Ссылка:** [commit:20250917-02](https://github.com/username/tutor-manager/commit/20250917-02)
+
+### 📖 Контекст
+Требовалось поддержать сложные контакты (Telegram, WhatsApp, Viber) и родственников (Мама, Папа) без жёстко закодированных полей.
+
+### ✅ Решение
+- Добавлены две таблицы:
+  - `student_contacts` — с `type` enum (`phone`, `email`, `telegram`, `whatsapp`, `viber`, `other`) и `value`
+  - `student_relations` — с `relation_name` и `contact_value`
+- Обе таблицы связаны с `students.id` и защищены RLS.
+- Использован enum `ContactType` из `supabase.txt`.
+
+### ↔️ Альтернативы
+- Хранить контакты в JSON-поле → отклонено, нельзя индексировать и фильтровать.
+- Добавить поля `telegram`, `whatsapp` в `students` → отклонено, не масштабируемо.
+
+### ⚠️ Последствия
+- Возможность добавлять любые контакты и родственников без изменения схемы.
+- Поддержка множественных контактов одного типа.
+- UI-форма теперь динамическая, с кнопками “+ Добавить”.
+
+---
+
+## 🆔 20250917-03
+
+**Дата:** 2025-09-17  
+**Статус:** ✅ Реализовано  
+**Модуль:** types, infrastructure  
+**Заголовок:** Синхронизация типов Supabase и обновление `types/supabase.ts`  
+**Ссылка:** [commit:20250917-03](https://github.com/username/tutor-manager/commit/20250917-03)
+
+### 📖 Контекст
+Все типы должны соответствовать актуальной схеме БД — иначе TS-ошибки и баги на этапе сборки.
+
+### ✅ Решение
+- Выполнена команда:  
+  ```bash
+  npx supabase gen types typescript --project-id your-project-id > types/supabase.ts

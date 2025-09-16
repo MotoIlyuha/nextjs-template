@@ -4,7 +4,8 @@ import { useMemo } from 'react';
 import { useSignal, themeParams as _themeParams } from '@telegram-apps/sdk-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Flame, Star } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Calendar } from '@/components/ui/calendar';
 import { useRouter } from 'next/navigation';
@@ -40,8 +41,13 @@ export default function TestPage() {
         <div className="grid gap-3 sm:grid-cols-2">
           <Input placeholder="Текстовое поле" />
           <Select defaultValue="1">
-            <option value="1">Вариант 1</option>
-            <option value="2">Вариант 2</option>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1"><span className="inline-flex items-center gap-2"><Flame className="h-4 w-4" /><span>Вариант 1</span></span></SelectItem>
+              <SelectItem value="2"><span className="inline-flex items-center gap-2"><Star className="h-4 w-4" /><span>Вариант 2</span></span></SelectItem>
+            </SelectContent>
           </Select>
         </div>
         <div className="flex items-center gap-3 text-sm">

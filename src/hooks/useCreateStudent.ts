@@ -26,14 +26,29 @@ export function useCreateStudent({ teacherId }: UseCreateStudentOptions) {
       if (!parsed.success) {
         throw new Error(parsed.error.issues.map((i) => i.message).join(', '));
       }
+      
       const supabase = createClient();
-      const payload: TablesInsert<'students'> = {
-        ...parsed.data,
-        teacher_id: teacherId,
-      } as TablesInsert<'students'>;
-      const { data, error } = await supabase.from('students').insert(payload).select('*').single();
-      if (error) throw new Error(error.message);
-      return data;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error('No active session');
+      }
+
+      const response = await fetch('/api/students', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify(parsed.data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create student');
+      }
+
+      const result = await response.json();
+      return result.student;
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['students', teacherId] });

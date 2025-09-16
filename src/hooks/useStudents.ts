@@ -22,12 +22,24 @@ export function useStudents(teacherId: string): UseQueryResult<Student[]> {
     enabled: Boolean(teacherId),
     queryFn: async () => {
       const supabase = createClient();
-      const { data, error } = await supabase
-        .from('students')
-        .select('*')
-        .eq('teacher_id', teacherId);
-      if (error) throw new Error(error.message);
-      return data as Student[];
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error('No active session');
+      }
+
+      const response = await fetch('/api/students', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch students');
+      }
+
+      const result = await response.json();
+      return result.students as Student[];
     },
     staleTime: 30_000,
     retry: 1,
