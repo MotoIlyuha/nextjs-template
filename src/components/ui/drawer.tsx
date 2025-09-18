@@ -42,13 +42,21 @@ export function DrawerContent({ className = '', children }: DrawerContentProps) 
   return (
     <VaulDrawer.Portal>
       <VaulDrawer.Overlay className="fixed inset-0 z-50 bg-black/40" />
-      <VaulDrawer.Content className={`fixed inset-x-0 bottom-0 z-50 mt-24 rounded-t-2xl tg-surface tg-border border p-4 ${className}`}>
+      <VaulDrawer.Content className={`max-h-[95%] fixed inset-x-0 bottom-0 z-50 mt-24 rounded-t-2xl tg-surface tg-border border p-4 ${className}`}>
         <div className="mx-auto w-full max-w-md">
           <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-white/30" />
           {children}
         </div>
       </VaulDrawer.Content>
     </VaulDrawer.Portal>
+  );
+}
+
+export function DrawerBottomPanel({ children }: { children?: React.ReactNode }) {
+  return (
+    <div className="sticky bottom-0 bg-tg-surface/95 backdrop-blur-sm border-t tg-border border-t-white/10 p-4 pt-2 pb-3 -mx-4 -mb-4 rounded-t-2xl">
+      {children}
+    </div>
   );
 }
 
