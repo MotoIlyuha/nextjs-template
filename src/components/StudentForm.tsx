@@ -7,6 +7,7 @@ import { StudentFormSchema, type StudentFormValues } from "@/schemas/student";
 import { Form, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { MapPin } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -39,6 +40,7 @@ import {
   TabsContent,
 } from "@/components/ui/tabs";
 import ContactItem from "@/components/ui/contact-item";
+import MapAddressPicker from "@/components/MapAddressPicker";
 
 export interface StudentFormProps {
   teacherId: string;
@@ -138,6 +140,7 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
 
     const [isAddContactOpen, setIsAddContactOpen] = React.useState(false);
     const [isAddRelationOpen, setIsAddRelationOpen] = React.useState(false);
+    const [isMapPickerOpen, setIsMapPickerOpen] = React.useState(false);
     const [newContactType, setNewContactType] = React.useState<string>("phone");
     const [newContactValue, setNewContactValue] = React.useState<string>("");
     const [newRelationName, setNewRelationName] = React.useState<string>("");
@@ -428,7 +431,22 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
                       {(field) => (
                         <FormItem>
                           <label className="text-sm">Адрес</label>
-                          <Input placeholder="Город, улица, дом" {...field} />
+                          <div className="flex items-center gap-2">
+                            <Input
+                              placeholder="Город, улица, дом"
+                              {...field}
+                              className="flex-1"
+                            />
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="secondary"
+                              onClick={() => setIsMapPickerOpen(true)}
+                              aria-label="Открыть карту"
+                            >
+                              <MapPin className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </FormItem>
                       )}
                     </FormField>
@@ -787,6 +805,15 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
               </div>
             )}
           </div>
+          {/* Address Map Picker Drawer */}
+          <MapAddressPicker
+            open={isMapPickerOpen}
+            onOpenChange={setIsMapPickerOpen}
+            initialAddress={form.getValues("address") || ""}
+            onSelect={(addr) => {
+              form.setValue("address", addr, { shouldDirty: true, shouldValidate: true });
+            }}
+          />
         </form>
       </Form>
     );
