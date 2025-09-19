@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from './button';
+import { X } from 'lucide-react';
 
 interface ColorPickerProps {
   value: string;
@@ -65,6 +66,16 @@ export function ColorPicker({ value, onChange, className = '', onOpenChange }: C
     }, 300);
   };
 
+  const handleCloseClick = () => {
+    setIsClosing(true);
+    setIsAnimating(true);
+    setTimeout(() => {
+      setIsOpen(false);
+      setIsClosing(false);
+      onOpenChange?.(false);
+    }, 300);
+  };
+
   const handleAnimationEnd = () => {
     setIsAnimating(false);
   };
@@ -120,7 +131,7 @@ export function ColorPicker({ value, onChange, className = '', onOpenChange }: C
           }}
           onAnimationEnd={handleAnimationEnd}
         >
-          <div className="flex flex-row gap-2 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border tg-border">
+          <div className="relative flex flex-row gap-2 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border tg-border">
             {PREDEFINED_COLORS.map((color) => (
               <button
                 key={color}
@@ -131,6 +142,16 @@ export function ColorPicker({ value, onChange, className = '', onOpenChange }: C
                 aria-label={`Выбрать цвет ${color}`}
               />
             ))}
+            {/* separator */}
+            <div className="h-7 w-px bg-gray-300 rounded-md opacity-40"></div>
+            <button
+              type="button"
+              className="ml-1 h-7 w-5 border-none"
+              aria-label="Закрыть палитру"
+              onClick={handleCloseClick}
+            >
+              <X className="h-4 w-4 rounded-md tg-border" />
+            </button>
           </div>
         </div>
       )}
