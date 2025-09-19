@@ -58,7 +58,7 @@ export async function POST(request: Request): Promise<Response> {
     // Prepare student data
     const studentData: TablesInsert<'students'> = {
       first_name: values.first_name,
-      last_name: values.last_name,
+      last_name: values.last_name ?? null,
       is_online: values.is_online,
       address: values.is_online ? null : values.address || null,
       teacher_id: user.id,

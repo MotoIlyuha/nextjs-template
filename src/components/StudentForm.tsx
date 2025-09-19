@@ -333,7 +333,7 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
                   <FormField name="first_name">
                     {(field) => (
                       <FormItem>
-                        <label className="text-sm">Имя</label>
+                        <label className="text-sm" onClick={fillWithMockData}>Имя</label>
                         <Input
                           placeholder="Иван"
                           {...field}
@@ -364,17 +364,6 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
                       </FormItem>
                     )}
                   </FormField>
-                </div>
-
-                {/* Tools */}
-                <div className="flex justify-end">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={fillWithMockData}
-                  >
-                    Заполнить случайно
-                  </Button>
                 </div>
 
                 {/* Lesson format (chips with radios) + address */}

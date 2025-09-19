@@ -77,7 +77,7 @@ export async function PATCH(request: Request, { params }: RouteParams): Promise<
     const studentUpdateData: TablesUpdate<'students'> = {};
     
     if (values.first_name !== undefined) studentUpdateData.first_name = values.first_name;
-    if (values.last_name !== undefined) studentUpdateData.last_name = values.last_name;
+    if (values.last_name !== undefined) studentUpdateData.last_name = values.last_name ?? null;
     if (values.is_online !== undefined) {
       studentUpdateData.is_online = values.is_online;
       studentUpdateData.address = values.is_online ? null : (values.address || null);

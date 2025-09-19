@@ -80,25 +80,30 @@ export const RelationSchema = z
 export const StudentFormSchema = z
   .object({
     first_name: z.string().min(1, 'Имя обязательно').max(64),
-    last_name: z.string().min(1, 'Фамилия обязательна').max(64),
+    // Фамилия необязательна: допускаем пустую строку и отсутствующее значение
+    last_name: z
+      .union([z.string().max(64), z.literal('')])
+      .optional()
+      .transform((value) => {
+        if (value === undefined) return undefined;
+        const trimmed = value.trim();
+        return trimmed.length === 0 ? undefined : trimmed;
+      }),
     is_online: z.boolean().default(true),
-    address: z.string().optional(),
+    address: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined) return undefined;
+        const trimmed = value.trim();
+        return trimmed.length === 0 ? undefined : trimmed;
+      }),
     color: z.string().regex(hexColorRegex, 'Цвет должен быть в формате HEX'),
     note: z.string().optional(),
     contacts: z.array(ContactSchema).default([]),
     relations: z.array(RelationSchema).default([]),
   })
-  .superRefine((values, ctx) => {
-    if (values.is_online === false) {
-      if (!values.address || values.address.trim().length === 0) {
-        ctx.addIssue({
-          code: 'custom',
-          message: 'Адрес обязателен для офлайн-ученика',
-          path: ['address'],
-        });
-      }
-    }
-  });
+  ;
 
 export type StudentFormValues = z.infer<typeof StudentFormSchema>;
 

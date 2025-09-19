@@ -82,9 +82,9 @@ export function ColorPicker({ value, onChange, className = '', onOpenChange }: C
       >
         {/* Подсказка */}
         {showTooltip && (
-          <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-50">
+          <div className="absolute -top-8 left-0 transform bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-50">
             Выбери цвет ученика
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+            <div className="absolute top-full left-0 transform w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
           </div>
         )}
       </button>
