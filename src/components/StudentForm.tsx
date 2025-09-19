@@ -143,10 +143,12 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
     const [isMapPickerOpen, setIsMapPickerOpen] = React.useState(false);
     const [newContactType, setNewContactType] = React.useState<string>("phone");
     const [newContactValue, setNewContactValue] = React.useState<string>("");
+    const [editContactIndex, setEditContactIndex] = React.useState<number | null>(null);
     const [newRelationName, setNewRelationName] = React.useState<string>("");
     const [newRelationType, setNewRelationType] =
       React.useState<string>("phone");
     const [newRelationValue, setNewRelationValue] = React.useState<string>("");
+    const [editRelationIndex, setEditRelationIndex] = React.useState<number | null>(null);
 
     const messengerOptions = useMemo(
       () => [
@@ -475,6 +477,7 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
                     <Button
                       type="button"
                       onClick={() => {
+                        setEditContactIndex(null);
                         setNewContactType("phone");
                         setNewContactValue("");
                         setIsAddContactOpen(true);
@@ -494,6 +497,18 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
                         "last_name"
                       )}`.trim()}
                       value={form.getValues(`contacts.${idx}.value`) as any}
+                      onEdit={() => {
+                        setEditContactIndex(idx);
+                        setNewContactType(
+                          (form.getValues(`contacts.${idx}.type`) as string) ||
+                            "phone"
+                        );
+                        setNewContactValue(
+                          (form.getValues(`contacts.${idx}.value`) as string) ||
+                            ""
+                        );
+                        setIsAddContactOpen(true);
+                      }}
                       onDelete={() => contactsArray.remove(idx)}
                     />
                   ))}
@@ -507,7 +522,7 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
                   <DrawerContent>
                     <div className="mx-auto w-full max-w-md">
                       <DrawerHeader>
-                        <DrawerTitle>Добавить контакт</DrawerTitle>
+                        <DrawerTitle>{editContactIndex === null ? "Добавить контакт" : "Редактировать контакт"}</DrawerTitle>
                       </DrawerHeader>
                       <div className="p-4 space-y-4">
                         <div>
@@ -604,15 +619,29 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
                         <Button
                           type="button"
                           onClick={() => {
-                            contactsArray.append({
-                              type: newContactType as any,
-                              value: newContactValue,
-                            });
+                            if (editContactIndex === null) {
+                              contactsArray.append({
+                                type: newContactType as any,
+                                value: newContactValue,
+                              });
+                            } else {
+                              form.setValue(
+                                `contacts.${editContactIndex}.type`,
+                                newContactType as any,
+                                { shouldDirty: true, shouldValidate: true }
+                              );
+                              form.setValue(
+                                `contacts.${editContactIndex}.value`,
+                                newContactValue,
+                                { shouldDirty: true, shouldValidate: true }
+                              );
+                            }
+                            setEditContactIndex(null);
                             setIsAddContactOpen(false);
                           }}
                           disabled={!newContactValue}
                         >
-                          Добавить
+                          {editContactIndex === null ? "Добавить" : "Сохранить"}
                         </Button>
                         <DrawerClose asChild>
                           <Button variant="outline" type="button">
@@ -631,6 +660,7 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
                     <Button
                       type="button"
                       onClick={() => {
+                        setEditRelationIndex(null);
                         setNewRelationName("");
                         setNewRelationType("phone");
                         setNewRelationValue("");
@@ -659,6 +689,25 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
                           `relations.${idx}.contact_value`
                         ) as any) || ""
                       }
+                      onEdit={() => {
+                        setEditRelationIndex(idx);
+                        setNewRelationName(
+                          (form.getValues(
+                            `relations.${idx}.relation_name`
+                          ) as string) || ""
+                        );
+                        setNewRelationType(
+                          (form.getValues(
+                            `relations.${idx}.contact_type`
+                          ) as string) || "phone"
+                        );
+                        setNewRelationValue(
+                          (form.getValues(
+                            `relations.${idx}.contact_value`
+                          ) as string) || ""
+                        );
+                        setIsAddRelationOpen(true);
+                      }}
                       onDelete={() => relationsArray.remove(idx)}
                     />
                   ))}
@@ -672,7 +721,7 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
                   <DrawerContent>
                     <div className="mx-auto w-full max-w-md">
                       <DrawerHeader>
-                        <DrawerTitle>Добавить запись</DrawerTitle>
+                        <DrawerTitle>{editRelationIndex === null ? "Добавить запись" : "Редактировать запись"}</DrawerTitle>
                       </DrawerHeader>
                       <div className="p-4 space-y-4">
                         <div>
@@ -782,16 +831,35 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
                         <Button
                           type="button"
                           onClick={() => {
-                            relationsArray.append({
-                              relation_name: newRelationName,
-                              contact_type: newRelationType as any,
-                              contact_value: newRelationValue,
-                            });
+                            if (editRelationIndex === null) {
+                              relationsArray.append({
+                                relation_name: newRelationName,
+                                contact_type: newRelationType as any,
+                                contact_value: newRelationValue,
+                              });
+                            } else {
+                              form.setValue(
+                                `relations.${editRelationIndex}.relation_name`,
+                                newRelationName,
+                                { shouldDirty: true, shouldValidate: true }
+                              );
+                              form.setValue(
+                                `relations.${editRelationIndex}.contact_type`,
+                                newRelationType as any,
+                                { shouldDirty: true, shouldValidate: true }
+                              );
+                              form.setValue(
+                                `relations.${editRelationIndex}.contact_value`,
+                                newRelationValue,
+                                { shouldDirty: true, shouldValidate: true }
+                              );
+                            }
+                            setEditRelationIndex(null);
                             setIsAddRelationOpen(false);
                           }}
                           disabled={!newRelationName || !newRelationValue}
                         >
-                          Добавить
+                          {editRelationIndex === null ? "Добавить" : "Сохранить"}
                         </Button>
                         <DrawerClose asChild>
                           <Button variant="outline" type="button">

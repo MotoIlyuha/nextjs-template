@@ -19,12 +19,12 @@ export interface ContactItemProps {
 
 function renderTypeIcon(type: ContactType): React.ReactNode {
 	const map: Record<ContactType, React.ReactNode> = {
-		phone: <MdLocalPhone className="h-4 w-4" />,
-		email: <MdOutlineMail className="h-4 w-4" />,
-		telegram: <SiTelegram className="h-4 w-4" />,
-		whatsapp: <SiWhatsapp className="h-4 w-4 text-green-500" />,
-		viber: <SiViber className="h-4 w-4 text-purple-500" />,
-		other: <PiChatCircleDotsThin className="h-4 w-4" />,
+		phone: <MdLocalPhone className="h-6 w-6" />,
+		email: <MdOutlineMail className="h-6 w-6" />,
+		telegram: <SiTelegram className="h-6 w-6" color="#6cb5ff"/>,
+		whatsapp: <SiWhatsapp className="h-6 w-6 text-green-500" />,
+		viber: <SiViber className="h-6 w-6 text-purple-500" />,
+		other: <PiChatCircleDotsThin className="h-6 w-6" />,
 	};
 	return map[type] ?? type;
 }
@@ -32,7 +32,7 @@ function renderTypeIcon(type: ContactType): React.ReactNode {
 export function ContactItem({ type, title, value, onEdit, onDelete }: ContactItemProps) {
 	return (
 		<div className="flex items-center gap-3 min-w-0">
-			<div className="h-9 w-9 shrink-0 rounded-md border tg-border bg-white/5 flex items-center justify-center">
+			<div className="h-10 w-10 shrink-0 rounded-md flex items-center justify-center">
 				{renderTypeIcon(type)}
 			</div>
 			<div className="min-w-0 flex-1">
@@ -40,12 +40,10 @@ export function ContactItem({ type, title, value, onEdit, onDelete }: ContactIte
 				<div className="text-xs opacity-80 truncate">{value || '—'}</div>
 			</div>
 			<div className="flex items-center gap-1">
-				{onEdit && (
-					<Button type="button" variant="ghost" size="icon" onClick={onEdit} aria-label="Редактировать">
-						<Pencil className="h-4 w-4" />
-					</Button>
-				)}
-				<Button type="button" variant="ghost" size="icon" onClick={onDelete} aria-label="Удалить">
+				<Button className="border-none" type="button" variant="ghost" size="icon" onClick={onEdit} aria-label="Редактировать">
+					<Pencil className="h-4 w-4" />
+				</Button>
+				<Button className="border-none" type="button" variant="ghost" size="icon" onClick={onDelete} aria-label="Удалить">
 					<Trash2 className="h-4 w-4" />
 				</Button>
 			</div>
