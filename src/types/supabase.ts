@@ -233,29 +233,41 @@ export type Database = {
       students: {
         Row: {
           address: string | null
+          class_or_course: number | null
+          color: string | null
           created_at: string | null
           first_name: string
           id: string
+          is_archived: boolean | null
           is_online: boolean | null
           last_name: string | null
+          note: string | null
           teacher_id: string
         }
         Insert: {
           address?: string | null
+          class_or_course?: number | null
+          color?: string | null
           created_at?: string | null
           first_name: string
           id?: string
+          is_archived?: boolean | null
           is_online?: boolean | null
           last_name?: string | null
+          note?: string | null
           teacher_id: string
         }
         Update: {
           address?: string | null
+          class_or_course?: number | null
+          color?: string | null
           created_at?: string | null
           first_name?: string
           id?: string
+          is_archived?: boolean | null
           is_online?: boolean | null
           last_name?: string | null
+          note?: string | null
           teacher_id?: string
         }
         Relationships: [

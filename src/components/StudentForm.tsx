@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useMemo, forwardRef } from "react";
 import { useFieldArray, useForm, type SubmitHandler } from "react-hook-form";
@@ -12,10 +12,14 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SegmentedControl, SegmentedControlItem } from "@/components/ui/segmented-control";
 import { SiViber } from "react-icons/si";
 import { SiWhatsapp } from "react-icons/si";
 import { SiTelegram } from "react-icons/si";
@@ -31,6 +35,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { useCreateStudent } from "@/hooks/useCreateStudent";
+import { useUpdateStudent } from "@students/hooks";
 import { useUIStore } from "@/stores/uiStore";
 import {
   Tabs,
@@ -82,6 +87,7 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
         first_name: (student as any)?.first_name ?? "",
         last_name: (student as any)?.last_name ?? "",
         is_online: (student as any)?.is_online ?? true,
+        class_or_course: (student as any)?.class_or_course ?? null,
         address: (student as any)?.address ?? "",
         color: color ?? (student as any)?.color ?? "#226095",
         note: (student as any)?.note ?? "",
@@ -99,8 +105,11 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
       }
     }, [color]);
 
-    const { mutate, isPending } = useCreateStudent({ teacherId });
+    const { mutate: createStudent, isPending: isCreating } = useCreateStudent({ teacherId });
+    const { mutate: updateStudent, isPending: isUpdating } = useUpdateStudent(teacherId);
     const { closeStudentForm } = useUIStore();
+    
+    const isPending = isCreating || isUpdating;
 
     // Передаем состояние в родительский компонент
     useEffect(() => {
@@ -111,18 +120,22 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
       console.log('StudentForm handleSubmit called with values:', values);
       console.log('Mode:', mode, 'isPending:', isPending);
       const onSuccess = () => {
-        console.log('Student created successfully, closing form');
+        console.log('Student operation completed successfully, closing form');
         closeStudentForm();
       };
       const onError = (error: any) => {
-        console.error('Error creating student:', error);
+        console.error('Error with student operation:', error);
       };
       if (mode === "create") {
-        console.log('Calling mutate for create mode');
-        mutate(values, { onSuccess, onError });
+        console.log('Calling createStudent for create mode');
+        createStudent(values, { onSuccess, onError });
       } else {
-        console.log('Calling mutate for edit mode');
-        mutate(values, { onSuccess, onError });
+        console.log('Calling updateStudent for edit mode');
+        if (!student?.id) {
+          console.error('Student ID is required for edit mode');
+          return;
+        }
+        updateStudent({ studentId: student.id, values }, { onSuccess, onError });
       }
     };
 
@@ -313,6 +326,7 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
           first_name,
           last_name,
           is_online,
+          class_or_course: Math.floor(Math.random() * 16), // Random class/course 0-15
           address,
           color: colorHex,
           note,
@@ -334,7 +348,7 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
             {activeTab === "basic" && (
               <div className="min-w-0">
                 {/* Basic */}
-                <div className="grid gap-4 sm:grid-cols-2 min-w-0">
+                <div className="grid gap-y-2 gap-x-4 sm:grid-cols-2 min-w-0">
                   <FormField name="first_name">
                     {(field) => (
                       <FormItem>
@@ -371,67 +385,75 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
                   </FormField>
                 </div>
 
-                {/* Lesson format (chips with radios) + address */}
-                <div className="grid gap-4 sm:grid-cols-2 min-w-0">
+                {/* Class/Course and Lesson format in 2x2 grid */}
+                <div className="grid grid-cols-2 gap-y-2 gap-x-4 min-w-0 mt-2">
+                  <div className="flex items-center">
+                    <label className="text-sm">Класс/Курс</label>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <label className="text-sm">Формат занятий</label>
+                  </div>
+                  
+                  <FormField name="class_or_course">
+                    {(field) => (
+                      <FormItem>
+                        <Select value={field.value == null ? "none" : String(field.value)} onValueChange={(val) => field.onChange(val === "none" ? null : Number(val))}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Не выбрано" />
+                          </SelectTrigger>
+                          <SelectContent className="tg-border max-h-[60vh]">
+                            <SelectItem value="none">Не выбрано</SelectItem>
+                            <SelectGroup>
+                              <SelectLabel>Классы</SelectLabel>
+                              {Array.from({ length: 11 }).map((_, idx) => (
+                                <SelectItem key={idx} value={String(idx)}>
+                                  {idx + 1} класс
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                            <SelectSeparator />
+                            <SelectGroup>
+                              <SelectLabel>Курсы</SelectLabel>
+                              {Array.from({ length: 5 }).map((_, idx) => (
+                                <SelectItem key={idx + 11} value={String(idx + 11)}>
+                                  Курс {idx + 1}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        {form.formState.errors.class_or_course && (
+                          <p className="text-red-400 text-xs">
+                            {form.formState.errors.class_or_course.message as any}
+                          </p>
+                        )}
+                      </FormItem>
+                    )}
+                  </FormField>
+                  
                   <FormField name="is_online">
                     {(field) => (
                       <FormItem>
-                        <label className="text-sm">Формат занятий</label>
-                        <div className="flex items-center gap-2">
-                          <label
-                            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm cursor-pointer flex-shrink-0 ${
-                              field.value
-                                ? "border-white/60 bg-white/10"
-                                : "border-white/20"
-                            }`}
-                          >
-                            <input
-                              type="radio"
-                              name="lesson-format"
-                              className="sr-only"
-                              checked={!!field.value}
-                              onChange={() => field.onChange(true)}
-                            />
-                            <span
-                              className={`h-3 w-3 rounded-full border ${
-                                field.value
-                                  ? "bg-white border-white"
-                                  : "border-white/50"
-                              }`}
-                            />
-                            <span>Онлайн</span>
-                          </label>
-                          <label
-                            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm cursor-pointer flex-shrink-0 ${
-                              !field.value
-                                ? "border-white/60 bg-white/10"
-                                : "border-white/20"
-                            }`}
-                          >
-                            <input
-                              type="radio"
-                              name="lesson-format"
-                              className="sr-only"
-                              checked={!field.value}
-                              onChange={() => field.onChange(false)}
-                            />
-                            <span
-                              className={`h-3 w-3 rounded-full border ${
-                                !field.value
-                                  ? "bg-white border-white"
-                                  : "border-white/50"
-                              }`}
-                            />
-                            <span>Офлайн</span>
-                          </label>
-                        </div>
+                        <SegmentedControl
+                          type="single"
+                          value={field.value ? "online" : "offline"}
+                          onValueChange={(value: string) => field.onChange(value === "online")}
+                        >
+                          <SegmentedControlItem value="online">
+                            Онлайн
+                          </SegmentedControlItem>
+                          <SegmentedControlItem value="offline">
+                            Очно
+                          </SegmentedControlItem>
+                        </SegmentedControl>
                       </FormItem>
                     )}
                   </FormField>
                   {!form.watch("is_online") && (
                     <FormField name="address">
                       {(field) => (
-                        <FormItem>
+                        <FormItem className="col-span-2">
                           <label className="text-sm">Адрес</label>
                           <div className="flex items-center gap-2">
                             <Input
@@ -457,7 +479,7 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
                 {/* Note */}
                 <FormField name="note">
                   {(field) => (
-                    <FormItem>
+                    <FormItem className="mt-2">
                       <label className="text-sm">Заметка</label>
                       <Textarea
                         placeholder="Примечания по ученику"
@@ -534,7 +556,7 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
                             <SelectTrigger>
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="max-h-[20vh]">
                               <SelectItem value="phone">
                                 <span className="inline-flex items-center gap-2">
                                   <MdLocalPhone className="h-4 w-4" />
@@ -742,7 +764,7 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
                               <SelectTrigger>
                                 <SelectValue />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="max-h-[20vh]">
                                 <SelectItem value="phone">
                                   <span className="inline-flex items-center gap-2">
                                     <MdLocalPhone className="h-4 w-4" />

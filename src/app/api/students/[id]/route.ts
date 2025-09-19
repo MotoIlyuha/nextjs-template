@@ -78,6 +78,7 @@ export async function PATCH(request: Request, { params }: RouteParams): Promise<
     
     if (values.first_name !== undefined) studentUpdateData.first_name = values.first_name;
     if (values.last_name !== undefined) studentUpdateData.last_name = values.last_name ?? null;
+    if (values.color !== undefined) studentUpdateData.color = values.color;
     if (values.is_online !== undefined) {
       studentUpdateData.is_online = values.is_online;
       studentUpdateData.address = values.is_online ? null : (values.address || null);
@@ -85,6 +86,14 @@ export async function PATCH(request: Request, { params }: RouteParams): Promise<
     if (values.address !== undefined && !values.is_online) {
       studentUpdateData.address = values.address;
     }
+    if (values.class_or_course !== undefined) {
+      (studentUpdateData as any).class_or_course = values.class_or_course ?? null;
+    }
+    if (values.note !== undefined) {
+      (studentUpdateData as any).note = values.note || null;
+    }
+    const isArchived = typeof (body as any)?.is_archived === 'boolean' ? (body as any).is_archived as boolean : undefined;
+    if (isArchived !== undefined) (studentUpdateData as any).is_archived = isArchived;
 
     // Update student
     const { data: student, error: studentError } = await supabase

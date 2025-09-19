@@ -39,7 +39,8 @@ export function useStudents(teacherId: string): UseQueryResult<Student[]> {
       }
 
       const result = await response.json();
-      return result.students as Student[];
+      const list = result.students as Student[];
+      return Array.isArray(list) ? list.filter((s) => !(s as any).is_archived) : [];
     },
     staleTime: 30_000,
     retry: 1,

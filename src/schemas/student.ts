@@ -90,6 +90,13 @@ export const StudentFormSchema = z
         return trimmed.length === 0 ? undefined : trimmed;
       }),
     is_online: z.boolean().default(true),
+    class_or_course: z
+      .number()
+      .int()
+      .min(0, 'Минимум 0')
+      .max(15, 'Максимум 15')
+      .optional()
+      .nullable(),
     address: z
       .string()
       .optional()

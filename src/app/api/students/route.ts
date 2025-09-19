@@ -61,6 +61,9 @@ export async function POST(request: Request): Promise<Response> {
       last_name: values.last_name ?? null,
       is_online: values.is_online,
       address: values.is_online ? null : values.address || null,
+      color: values.color,
+      class_or_course: values.class_or_course ?? null,
+      note: values.note || null,
       teacher_id: user.id,
     };
 

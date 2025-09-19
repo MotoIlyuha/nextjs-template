@@ -90,7 +90,7 @@ export const SelectItem = React.forwardRef<
         <Check className="h-4 w-4" />
       </RadixSelect.ItemIndicator>
     </span>
-    <RadixSelect.ItemText>{children}</RadixSelect.ItemText>
+    <RadixSelect.ItemText key={props.value}>{children}</RadixSelect.ItemText>
   </RadixSelect.Item>
 ));
 SelectItem.displayName = RadixSelect.Item.displayName;
