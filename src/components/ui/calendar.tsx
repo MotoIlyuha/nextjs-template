@@ -7,14 +7,13 @@ import 'react-day-picker/dist/style.css';
 export interface CalendarProps {
   selected?: Date;
   onSelect?: (date?: Date) => void;
-  mode?: 'single' | 'multiple' | 'range';
 }
 
-export function Calendar({ selected, onSelect, mode = 'single' }: CalendarProps) {
+export function Calendar({ selected, onSelect }: CalendarProps) {
   return (
     <div className="rounded-xl tg-border border tg-surface p-2">
       <DayPicker
-        mode={mode}
+        mode="single"
         selected={selected}
         onSelect={onSelect}
         styles={{

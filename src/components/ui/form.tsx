@@ -3,8 +3,8 @@ import { FormProvider, useFormContext, type ControllerProps, Controller } from '
 
 export { FormProvider as Form } from 'react-hook-form';
 
-export function FormField<TFieldValues extends Record<string, any>, TName extends string>(
-  props: Omit<ControllerProps<TFieldValues, TName>, 'render' | 'control'> & { children: (field: any) => React.ReactNode },
+export function FormField<TFieldValues extends Record<string, any>>(
+  props: Omit<ControllerProps<TFieldValues>, 'render' | 'control'> & { children: (field: any) => React.ReactNode },
 ) {
   const { control } = useFormContext<TFieldValues>();
   const { name, rules, defaultValue, shouldUnregister, disabled } = props as any;

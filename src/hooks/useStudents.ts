@@ -181,3 +181,37 @@ export function useDeleteStudent(teacherId: string) {
     },
   });
 }
+
+/**
+ * useArchivedStudents — хук для получения списка архивированных учеников.
+ */
+export function useArchivedStudents(teacherId: string): UseQueryResult<StudentWithRelations[]> {
+  return useQuery<StudentWithRelations[]>({
+    queryKey: ['students', teacherId, 'archived'],
+    enabled: Boolean(teacherId),
+    queryFn: async () => {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error('No active session');
+      }
+
+      const response = await fetch('/api/students', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch students');
+      }
+
+      const result = await response.json();
+      const list = result.students as StudentWithRelations[];
+      return Array.isArray(list) ? list.filter((s) => s.is_archived) : [];
+    },
+    staleTime: 30_000,
+    retry: 1,
+  });
+}

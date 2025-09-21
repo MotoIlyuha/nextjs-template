@@ -20,7 +20,7 @@ export default function LoginPage() {
       try {
         await loginWithInitData(initDataRaw);
         if (!aborted) {
-          router.replace('/app');
+          router.replace('/students');
         }
       } catch (e: unknown) {
         if (!aborted) setError(e instanceof Error ? e.message : 'Unknown error');

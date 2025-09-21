@@ -4,12 +4,12 @@ import { RelationSchema } from '@/schemas/student';
 import type { TablesUpdate } from '@/types/supabase';
 
 interface RouteParams {
-  params: { id: string; relationId: string };
+  params: Promise<{ id: string; relationId: string }>;
 }
 
 export async function PATCH(request: Request, { params }: RouteParams): Promise<Response> {
   try {
-    const { id, relationId } = params;
+    const { id, relationId } = await params;
     if (!id || !relationId) {
       return NextResponse.json({ error: 'Student ID and Relation ID are required' }, { status: 400 });
     }
@@ -82,7 +82,7 @@ export async function PATCH(request: Request, { params }: RouteParams): Promise<
 
 export async function DELETE(request: Request, { params }: RouteParams): Promise<Response> {
   try {
-    const { id, relationId } = params;
+    const { id, relationId } = await params;
     if (!id || !relationId) {
       return NextResponse.json({ error: 'Student ID and Relation ID are required' }, { status: 400 });
     }

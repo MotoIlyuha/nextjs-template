@@ -104,7 +104,7 @@ export const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
       }
     }, [color]);
 
-    const { mutate: createStudent, isPending: isCreating } = useCreateStudent({ teacherId });
+    const { mutate: createStudent, isPending: isCreating } = useCreateStudent(teacherId);
     const { mutate: updateStudent, isPending: isUpdating } = useUpdateStudent(teacherId);
     const { closeStudentForm } = useUIStore();
     

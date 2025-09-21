@@ -4,12 +4,12 @@ import { StudentFormSchema, type StudentFormValues } from '@/schemas/student';
 import type { TablesUpdate } from '@/types/supabase';
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export async function GET(request: Request, { params }: RouteParams): Promise<Response> {
   try {
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json({ error: 'Student ID is required' }, { status: 400 });
     }
@@ -44,7 +44,7 @@ export async function GET(request: Request, { params }: RouteParams): Promise<Re
 
 export async function PATCH(request: Request, { params }: RouteParams): Promise<Response> {
   try {
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json({ error: 'Student ID is required' }, { status: 400 });
     }
@@ -194,7 +194,7 @@ export async function PATCH(request: Request, { params }: RouteParams): Promise<
 
 export async function DELETE(request: Request, { params }: RouteParams): Promise<Response> {
   try {
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json({ error: 'Student ID is required' }, { status: 400 });
     }

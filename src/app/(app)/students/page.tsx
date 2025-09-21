@@ -61,10 +61,10 @@ export default function StudentsPage() {
         if (aborted) return;
         const id = data.session?.user?.id || null;
         if (id) setTeacherId(id);
-        else router.replace('/login');
+        else router.replace('/');
       })
       .catch(() => {
-        if (!aborted) router.replace('/login');
+        if (!aborted) router.replace('/');
       });
     return () => { aborted = true; };
   }, [router]);

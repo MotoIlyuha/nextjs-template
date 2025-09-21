@@ -24,9 +24,21 @@ export default function TestPage() {
       </section>
 
       <section className="space-y-3">
+        <h2 className="text-lg font-semibold">Навигация</h2>
+        <div className="flex flex-wrap gap-3">
+          <Button onClick={() => router.push('/students')} className="bg-blue-600 hover:bg-blue-700">
+            Перейти к ученикам
+          </Button>
+          <Button onClick={() => router.push('/')} variant="outline">
+            Главная страница
+          </Button>
+        </div>
+      </section>
+
+      <section className="space-y-3">
         <h2 className="text-lg font-semibold">Кнопки</h2>
         <div className="flex flex-wrap gap-3">
-          <Button onClick={() => router.push('/students')}>Default</Button>
+          <Button>Default</Button>
           <Button variant="outline">Outline</Button>
           <Button variant="secondary">Secondary</Button>
           <Button variant="destructive">Destructive</Button>

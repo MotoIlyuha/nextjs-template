@@ -2,37 +2,38 @@
 
 import * as React from 'react';
 
-interface TabsContextType<T extends string> {
-	activeValue: T;
-	handleValueChange: (value: T) => void;
+interface TabsContextType {
+	activeValue: string;
+	handleValueChange: (value: string) => void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const TabsContext = React.createContext<TabsContextType<any> | undefined>(undefined);
+const TabsContext = React.createContext<TabsContextType | undefined>(undefined);
 
-function useTabs<T extends string = string>(): TabsContextType<T> {
+function useTabs(): TabsContextType {
 	const ctx = React.useContext(TabsContext);
 	if (!ctx) throw new Error('useTabs must be used within Tabs');
 	return ctx;
 }
 
-type BaseTabsProps = React.ComponentProps<'div'> & { children: React.ReactNode };
-type UncontrolledTabsProps<T extends string = string> = BaseTabsProps & { defaultValue?: T; value?: never; onValueChange?: never };
-type ControlledTabsProps<T extends string = string> = BaseTabsProps & { value: T; onValueChange?: (value: T) => void; defaultValue?: never };
-type TabsProps<T extends string = string> = UncontrolledTabsProps<T> | ControlledTabsProps<T>;
+export interface TabsProps extends React.ComponentProps<'div'> {
+	defaultValue?: string;
+	value?: string;
+	onValueChange?: (value: string) => void;
+	children: React.ReactNode;
+}
 
-export function Tabs<T extends string = string>({ defaultValue, value, onValueChange, className, children, ...props }: TabsProps<T>) {
+export function Tabs({ defaultValue, value, onValueChange, className, children, ...props }: TabsProps) {
 	const isControlled = value !== undefined;
-	const [internal, setInternal] = React.useState<T | undefined>(defaultValue);
-	const activeValue = (isControlled ? value : internal) as T;
+	const [internal, setInternal] = React.useState<string | undefined>(defaultValue);
+	const activeValue = isControlled ? value : internal;
 
-	const handleValueChange = (val: T) => {
+	const handleValueChange = (val: string) => {
 		if (isControlled) onValueChange?.(val);
 		else setInternal(val);
 	};
 
 	return (
-		<TabsContext.Provider value={{ activeValue, handleValueChange }}>
+		<TabsContext.Provider value={{ activeValue: activeValue || '', handleValueChange }}>
 			<div className={`flex flex-col gap-2 min-w-0 ${className || ''}`} {...props}>{children}</div>
 		</TabsContext.Provider>
 	);
@@ -70,7 +71,7 @@ export function TabsTrigger({ value, children, className, ...props }: TabsTrigge
 
 interface TabsContentsProps extends React.ComponentProps<'div'> { children: React.ReactNode; values: string[] }
 export function TabsContents({ children, className, values, ...props }: TabsContentsProps) {
-	const { activeValue, handleValueChange } = useTabs<string>();
+	const { activeValue, handleValueChange } = useTabs();
 	const containerRef = React.useRef<HTMLDivElement | null>(null);
 	const startXRef = React.useRef<number | null>(null);
 	const currentXRef = React.useRef<number>(0);
@@ -130,6 +131,5 @@ export function TabsContent({ children, className, ...props }: TabsContentProps)
 	);
 }
 
-export type { TabsProps };
 
 

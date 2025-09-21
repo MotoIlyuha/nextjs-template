@@ -32,7 +32,7 @@ export default function OnboardingPage() {
       const res = await fetch(`/api/check-teacher?user_id=${initData.user.id}`, { cache: 'no-store' });
       const data = await res.json();
       console.info('[onboarding] exists:', data?.exists);
-      if (data?.exists) router.replace('/app');
+      if (data?.exists) router.replace('/students');
     };
     run();
   }, [initData?.user?.id, router]);
@@ -53,7 +53,7 @@ export default function OnboardingPage() {
         console.info('[onboarding] got session, setting supabase session');
         await setSupabaseSession(data.session);
       }
-      router.replace('/app');
+      router.replace('/students');
     } catch (e) {
       console.error('[onboarding] register error:', e);
     } finally {

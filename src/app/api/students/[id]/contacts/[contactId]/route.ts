@@ -4,12 +4,12 @@ import { ContactSchema } from '@/schemas/student';
 import type { TablesUpdate } from '@/types/supabase';
 
 interface RouteParams {
-  params: { id: string; contactId: string };
+  params: Promise<{ id: string; contactId: string }>;
 }
 
 export async function PATCH(request: Request, { params }: RouteParams): Promise<Response> {
   try {
-    const { id, contactId } = params;
+    const { id, contactId } = await params;
     if (!id || !contactId) {
       return NextResponse.json({ error: 'Student ID and Contact ID are required' }, { status: 400 });
     }
@@ -82,7 +82,7 @@ export async function PATCH(request: Request, { params }: RouteParams): Promise<
 
 export async function DELETE(request: Request, { params }: RouteParams): Promise<Response> {
   try {
-    const { id, contactId } = params;
+    const { id, contactId } = await params;
     if (!id || !contactId) {
       return NextResponse.json({ error: 'Student ID and Contact ID are required' }, { status: 400 });
     }

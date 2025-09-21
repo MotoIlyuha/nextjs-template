@@ -51,7 +51,7 @@ export default function AppLayout({
       </main>
 
       {/* Навигационный dock в нижней части */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-transparent">
+      <div className="fixed bottom-0 left-0 right-0 p-4">
         <div className="flex justify-center">
           <MenuDock
             items={menuItems}
@@ -59,7 +59,7 @@ export default function AppLayout({
             orientation="horizontal"
             showLabels={true}
             animated={true}
-            className="shadow-lg"
+            className="shadow-lg bg-tg-surface/95 backdrop-blur-sm border-white/10"
           />
         </div>
       </div>
