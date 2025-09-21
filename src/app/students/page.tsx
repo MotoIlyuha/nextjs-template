@@ -33,6 +33,7 @@ import StudentForm from '@/components/student-form';
 import { createClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { useArchiveStudent, useDeleteStudent } from '@students/hooks';
+import StudentDrawer from '@/components/StudentDrawer';
 
 export default function StudentsPage() {
   const { isStudentFormOpen, openStudentForm, closeStudentForm } = useUIStore();
@@ -49,6 +50,8 @@ export default function StudentsPage() {
   const [isArchiving, setIsArchiving] = useState(false);
   const [deleteDialogOpenFor, setDeleteDialogOpenFor] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
+  const [isStudentDrawerOpen, setIsStudentDrawerOpen] = useState(false);
 
   // Инициализация teacherId из сессии Supabase (локально, без Zustand)
   useEffect(() => {
@@ -112,6 +115,36 @@ export default function StudentsPage() {
     }
   };
 
+  const handleStudentClick = (student: any) => {
+    setSelectedStudent(student);
+    setIsStudentDrawerOpen(true);
+  };
+
+  const handleStudentDrawerClose = () => {
+    setIsStudentDrawerOpen(false);
+    setSelectedStudent(null);
+  };
+
+  const handleStudentEdit = (student: any) => {
+    setActiveTab('basic');
+    setFormState((prev) => ({ ...prev, mode: 'edit' }));
+    setEditingStudent({
+      id: student.id,
+      first_name: student.first_name,
+      last_name: student.last_name ?? '',
+      is_online: student.is_online ?? true,
+      address: student.address ?? '',
+      color: student.color ?? '#226095',
+      note: student.note ?? '',
+      contacts: student.student_contacts ?? [],
+      relations: student.student_relations ?? [],
+    });
+    setColor((student.color as string) || '#226095');
+    setIsStudentDrawerOpen(false);
+    setSelectedStudent(null);
+    openStudentForm();
+  };
+
   return (
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
@@ -128,8 +161,9 @@ export default function StudentsPage() {
             <div className="p-4 text-sm opacity-70">Пока нет учеников</div>
           ) : (
             students.map((s) => (
-              <div key={s.id} className="p-3 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
+              <div key={s.id} className="p-3 flex items-center justify-between gap-3 cursor-pointer"
+                  onClick={() => handleStudentClick(s)}>
+                <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div
                     className="h-7 w-7 rounded-lg flex-shrink-0 border border-white/20"
                     style={{ backgroundColor: (s as any).color || '#226095' }}
@@ -342,6 +376,16 @@ export default function StudentsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Student Drawer */}
+      <StudentDrawer
+        student={selectedStudent}
+        isOpen={isStudentDrawerOpen}
+        onClose={handleStudentDrawerClose}
+        onEdit={handleStudentEdit}
+        onArchive={(studentId: string) => setArchiveDialogOpenFor(studentId)}
+        onDelete={(studentId: string) => setDeleteDialogOpenFor(studentId)}
+      />
     </div>
   );
 }
