@@ -1,9 +1,4 @@
 import { vi } from 'vitest';
-import React from 'react';
-import '@testing-library/jest-dom';
-
-// Make React available globally
-global.React = React;
 
 // Mock Telegram WebApp
 Object.defineProperty(window, 'Telegram', {
@@ -80,6 +75,3 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 });
-
-// Mock fetch
-global.fetch = vi.fn();

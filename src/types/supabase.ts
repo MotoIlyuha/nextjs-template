@@ -104,7 +104,7 @@ export type Database = {
           note: string | null
           price: number
           start_time: string
-          status: string
+          status: Database["public"]["Enums"]["LessonStatus"]
           student_id: string
           subject: string
           teacher_id: string
@@ -118,7 +118,7 @@ export type Database = {
           note?: string | null
           price: number
           start_time: string
-          status?: string
+          status?: Database["public"]["Enums"]["LessonStatus"]
           student_id: string
           subject: string
           teacher_id: string
@@ -132,7 +132,7 @@ export type Database = {
           note?: string | null
           price?: number
           start_time?: string
-          status?: string
+          status?: Database["public"]["Enums"]["LessonStatus"]
           student_id?: string
           subject?: string
           teacher_id?: string
@@ -322,6 +322,13 @@ export type Database = {
         | "whatsapp"
         | "viber"
         | "other"
+      LessonStatus:
+        | "scheduled"
+        | "completed"
+        | "cancelled"
+        | "rescheduled"
+        | "unpaid"
+        | "paid"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -453,6 +460,14 @@ export const Constants = {
   public: {
     Enums: {
       ContactType: ["phone", "email", "telegram", "whatsapp", "viber", "other"],
+      LessonStatus: [
+        "scheduled",
+        "completed",
+        "cancelled",
+        "rescheduled",
+        "unpaid",
+        "paid",
+      ],
     },
   },
 } as const

@@ -46,7 +46,7 @@ export default function AppLayout({
       }}
     >
       {/* Основной контент */}
-      <main className="flex-1 pb-20">
+      <main className="flex-1 pb-20 overflow-auto">
         {children}
       </main>
 
