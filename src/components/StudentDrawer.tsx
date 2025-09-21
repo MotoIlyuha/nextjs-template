@@ -5,140 +5,37 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Pencil, Archive, Trash2, Phone, Mail, MessageCircle, MapPin } from 'lucide-react';
-import { SiTelegram, SiWhatsapp, SiViber } from 'react-icons/si';
-import { PiChatCircleDotsThin } from 'react-icons/pi';
+import { Pencil, Archive, Trash2, MapPin } from 'lucide-react';
 import YandexMap from '@/components/YandexMap';
-
-interface StudentContact {
-  id: string;
-  type: 'phone' | 'email' | 'telegram' | 'whatsapp' | 'viber' | 'other';
-  value: string;
-}
-
-interface StudentRelation {
-  id: string;
-  relation_name: string;
-  contact_type: 'phone' | 'email' | 'telegram' | 'whatsapp' | 'viber' | 'other';
-  contact_value: string;
-}
-
-interface Student {
-  id: string;
-  first_name: string;
-  last_name: string | null;
-  class_or_course: number | null;
-  is_online: boolean | null;
-  color: string | null;
-  note: string | null;
-  address: string | null;
-  student_contacts?: StudentContact[];
-  student_relations?: StudentRelation[];
-}
+import { ContactIcon } from '@/components/ui/contact-icon';
+import type { StudentWithRelations } from '@/types/student';
+import { getContactActionUrl, getContactActionText, getContactActionTarget, canPerformContactAction } from '@/lib/contact-utils';
 
 interface StudentDrawerProps {
-  student: Student | null;
+  student: StudentWithRelations | null;
   isOpen: boolean;
   onClose: () => void;
-  onEdit: (student: Student) => void;
+  onEdit: (student: StudentWithRelations) => void;
   onArchive: (studentId: string) => void;
   onDelete: (studentId: string) => void;
 }
 
-const getContactIcon = (type: string) => {
-  switch (type) {
-    case 'phone':
-      return <Phone className="h-4 w-4" />;
-    case 'email':
-      return <Mail className="h-4 w-4" />;
-    case 'telegram':
-      return <SiTelegram className="h-4 w-4" color="#6cb5ff"/>;
-    case 'whatsapp':
-      return <SiWhatsapp className="h-4 w-4 text-green-500" />;
-    case 'viber':
-      return <SiViber className="h-4 w-4 text-purple-500" />;
-    case 'other':
-      return <PiChatCircleDotsThin className="h-4 w-4" />;
-    default:
-      return <MessageCircle className="h-4 w-4" />;
-  }
-};
-
 const getContactActionButton = (type: string, value: string) => {
-  switch (type) {
-    case 'phone':
-      return (
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => window.open(`tel:${value}`, '_self')}
-          className="text-xs sm:text-sm px-2 sm:px-3"
-        >
-          <span className="xs:hidden">Звонок</span>
-          <span className="hidden xs:inline">Позвонить</span>
-        </Button>
-      );
-    case 'email':
-      return (
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => window.open(`mailto:${value}`, '_self')}
-          className="text-xs sm:text-sm px-2 sm:px-3"
-        >
-          <span className="xs:hidden">Письмо</span>
-          <span className="hidden xs:inline">Написать</span>
-        </Button>
-      );
-    case 'telegram':
-      return (
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => window.open(`https://t.me/${value.replace('@', '')}`, '_blank')}
-          className="text-xs sm:text-sm px-2 sm:px-3"
-        >
-          <span className="xs:hidden">TG</span>
-          <span className="hidden xs:inline">Написать</span>
-        </Button>
-      );
-    case 'whatsapp':
-      return (
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => window.open(`https://wa.me/${value.replace(/[^\d]/g, '')}`, '_blank')}
-          className="text-xs sm:text-sm px-2 sm:px-3"
-        >
-          <span className="xs:hidden">WA</span>
-          <span className="hidden xs:inline">Написать</span>
-        </Button>
-      );
-    case 'viber':
-      return (
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => window.open(`viber://chat?number=${value.replace(/[^\d]/g, '')}`, '_self')}
-          className="text-xs sm:text-sm px-2 sm:px-3"
-        >
-          <span className="xs:hidden">VB</span>
-          <span className="hidden xs:inline">Написать</span>
-        </Button>
-      );
-    default:
-      return (
-        <Button
-          size="sm"
-          variant="outline"
-          className="text-xs sm:text-sm px-2 sm:px-3"
-          disabled
-        >
-          <span className="xs:hidden">Копир.</span>
-          <span className="hidden xs:inline">Копировать</span>
-        </Button>
-      );
-  }
+  const url = getContactActionUrl(type as any, value);
+  const canPerform = canPerformContactAction(type as any);
+  
+  return (
+    <Button
+      size="sm"
+      variant="outline"
+      onClick={() => url && window.open(url, getContactActionTarget(type as any))}
+      disabled={!canPerform}
+      className="text-xs sm:text-sm px-2 sm:px-3"
+    >
+      <span className="xs:hidden">{getContactActionText(type as any, true)}</span>
+      <span className="hidden xs:inline">{getContactActionText(type as any, false)}</span>
+    </Button>
+  );
 };
 
 const getClassLabel = (classOrCourse: number | null) => {
@@ -232,7 +129,7 @@ export default function StudentDrawer({
                   {allContacts.map((contact) => (
                     <div key={contact.id} className="flex items-center gap-2 sm:gap-3 pl-3 sm:pl-4 p-2 sm:p-3 rounded-lg bg-white/5">
                       <div className="flex-shrink-0">
-                        {getContactIcon(contact.type)}
+                        <ContactIcon type={contact.type} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-xs sm:text-sm font-medium truncate">{contact.owner}</div>

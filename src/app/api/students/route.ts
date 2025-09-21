@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSupabaseForRequest } from '@/core/supabaseServer';
 import { StudentFormSchema, type StudentFormValues } from '@/schemas/student';
 import type { TablesInsert } from '@/types/supabase';
+import { handleApiError, successResponse, validateRequestBody, getAuthenticatedUser } from '@/lib/api-utils';
 
 export async function GET(request: Request): Promise<Response> {
   try {
@@ -21,39 +22,16 @@ export async function GET(request: Request): Promise<Response> {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ students });
-  } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : 'Unknown error';
-    console.error('[students GET] error:', message);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return successResponse({ students });
+  } catch (error) {
+    return handleApiError(error);
   }
 }
 
 export async function POST(request: Request): Promise<Response> {
   try {
-    const contentType = request.headers.get('content-type') || '';
-    if (!contentType.includes('application/json')) {
-      return NextResponse.json({ error: 'Content-Type must be application/json' }, { status: 415 });
-    }
-
-    const body = await request.json();
-    const parsed = StudentFormSchema.safeParse(body);
-    
-    if (!parsed.success) {
-      return NextResponse.json({ 
-        error: 'Validation failed', 
-        details: parsed.error.issues 
-      }, { status: 400 });
-    }
-
-    const values: StudentFormValues = parsed.data;
-    const supabase = getSupabaseForRequest(request);
-
-    // Get current user to set teacher_id
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const values = await validateRequestBody(request, StudentFormSchema);
+    const { user, supabase } = await getAuthenticatedUser(request);
 
     // Prepare student data
     const studentData: TablesInsert<'students'> = {
@@ -133,10 +111,8 @@ export async function POST(request: Request): Promise<Response> {
       return NextResponse.json({ error: fetchError.message }, { status: 500 });
     }
 
-    return NextResponse.json({ student: completeStudent }, { status: 201 });
-  } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : 'Unknown error';
-    console.error('[students POST] error:', message);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return successResponse({ student: completeStudent }, 201);
+  } catch (error) {
+    return handleApiError(error);
   }
 }

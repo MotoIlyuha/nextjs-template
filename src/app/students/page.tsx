@@ -2,7 +2,7 @@
 
 import { useSignal, themeParams as _tp } from '@telegram-apps/sdk-react';
 import { useEffect, useRef, useState } from 'react';
-import { useStudents } from '@/hooks/useStudents';
+import { useStudents, useArchiveStudent, useDeleteStudent } from '@/hooks/useStudents';
 import { useUIStore } from '@/stores/uiStore';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,10 +29,9 @@ import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle, DrawerBo
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ColorPicker } from '@/components/ui/color-picker';
-import StudentForm from '@/components/student-form';
+import StudentForm from '@/components/StudentForm';
 import { createClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { useArchiveStudent, useDeleteStudent } from '@students/hooks';
 import StudentDrawer from '@/components/StudentDrawer';
 
 export default function StudentsPage() {

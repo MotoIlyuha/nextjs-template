@@ -34,8 +34,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { useCreateStudent } from "@/hooks/useCreateStudent";
-import { useUpdateStudent } from "@students/hooks";
+import { useCreateStudent, useUpdateStudent } from "@/hooks/useStudents";
 import { useUIStore } from "@/stores/uiStore";
 import {
   Tabs,
