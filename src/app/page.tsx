@@ -1,63 +1,64 @@
 'use client';
 
-import { Section, Cell, Image, List } from '@telegram-apps/telegram-ui';
-import { useTranslations } from 'next-intl';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { initDataRaw as _initDataRaw, initDataState as _initDataState, useSignal } from '@telegram-apps/sdk-react';
+import { loginWithInitData } from '@/core/telegramAuth';
 
-import { Link } from '@/components/Link/Link';
-import { LocaleSwitcher } from '@/components/LocaleSwitcher/LocaleSwitcher';
-import { Page } from '@/components/Page';
+export default function RootPage() {
+  const router = useRouter();
+  const initData = useSignal(_initDataState);
+  const initDataRaw = useSignal(_initDataRaw);
+  const [error, setError] = useState<string | null>(null);
 
-import tonSvg from './_assets/ton.svg';
+  const telegramUserId: string | null = useMemo(() => {
+    const id = initData?.user?.id;
+    return typeof id === 'number' ? String(id) : id ? String(id) : null;
+  }, [initData?.user?.id]);
 
-export default function Home() {
-  const t = useTranslations('i18n');
+  useEffect(() => {
+    let aborted = false;
+    async function run() {
+      if (!initDataRaw) return; // ждём initData
+      try {
+        setError(null);
+        // Шаг 1: проверка наличия профиля в teachers по telegram_id
+        if (!telegramUserId) {
+          if (!aborted) router.replace('/onboarding');
+          return;
+        }
+        const checkRes = await fetch(`/api/check-teacher?user_id=${telegramUserId}`, { cache: 'no-store' });
+        const checkData = await checkRes.json().catch(() => ({}));
+        const exists: boolean = Boolean(checkData?.exists);
+
+        if (!exists) {
+          // Новый пользователь — показываем onboarding, без создания сессии
+          if (!aborted) router.replace('/onboarding');
+          return;
+        }
+
+        // Шаг 2: пользователь существует — выполняем авторизацию и переходим в приложение
+        await loginWithInitData(initDataRaw);
+        if (!aborted) router.replace('/test');
+      } catch (e: unknown) {
+        if (!aborted) {
+          setError(e instanceof Error ? e.message : 'Unknown error');
+          // При ошибке — отправляем на /login как fallback
+          router.replace('/login');
+        }
+      }
+    }
+    run();
+    return () => {
+      aborted = true;
+    };
+  }, [initDataRaw, telegramUserId, router]);
 
   return (
-    <Page back={false}>
-      <List>
-        <Section
-          header="Features"
-          footer="You can use these pages to learn more about features, provided by Telegram Mini Apps and other useful projects"
-        >
-          <Link href="/ton-connect">
-            <Cell
-              before={
-                <Image
-                  src={tonSvg.src}
-                  style={{ backgroundColor: '#007AFF' }}
-                  alt="TON Logo"
-                />
-              }
-              subtitle="Connect your TON wallet"
-            >
-              TON Connect
-            </Cell>
-          </Link>
-        </Section>
-        <Section
-          header="Application Launch Data"
-          footer="These pages help developer to learn more about current launch information"
-        >
-          <Link href="/init-data">
-            <Cell subtitle="User data, chat information, technical data">
-              Init Data
-            </Cell>
-          </Link>
-          <Link href="/launch-params">
-            <Cell subtitle="Platform identifier, Mini Apps version, etc.">
-              Launch Parameters
-            </Cell>
-          </Link>
-          <Link href="/theme-params">
-            <Cell subtitle="Telegram application palette information">
-              Theme Parameters
-            </Cell>
-          </Link>
-        </Section>
-        <Section header={t('header')} footer={t('footer')}>
-          <LocaleSwitcher />
-        </Section>
-      </List>
-    </Page>
+    <div className="flex min-h-dvh items-center justify-center p-4 text-sm text-white/70">
+      {error ? `Ошибка входа: ${error}` : 'Вход в систему…'}
+    </div>
   );
 }
+
+

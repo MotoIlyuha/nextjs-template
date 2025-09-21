@@ -1,0 +1,31 @@
+---
+description: "Стиль именования: kebab-case для файлов, camelCase для переменных и хуков"
+globs:
+  - "**/*.tsx"
+  - "**/*.ts"
+alwaysApply: true
+---
+
+> ✅ **Файлы и папки:**
+> - `student-form.tsx`
+> - `use-telegram-auth.ts`
+> - `telegram-login-page.tsx`
+> - `components/ui/student-card.tsx`
+> 
+> ✅ **Переменные, функции, хуки:**
+> - `const studentList = ...`
+> - `function handleLogin() { ... }`
+> - `const { mutate: createStudent } = useCreateStudent();`
+> - `const form = useForm<...>();`
+> 
+> ✅ **Типы и интерфейсы — PascalCase:**
+> - `interface Student { ... }`
+> - `type StudentFormValues = ...`
+> 
+> 🚫 Не используй:
+> - `StudentForm.tsx`
+> - `handle_login()`
+> - `student_list`
+> - `use_student_form`
+> 
+> ✅ Имена хуков — всегда с `use`: `useStudents`, `useCreateLesson`

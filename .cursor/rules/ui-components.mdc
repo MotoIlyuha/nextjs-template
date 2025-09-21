@@ -1,0 +1,26 @@
+---
+description: "Использовать только shadcn/ui компоненты для UI"
+globs:
+  - "app/**/*"
+  - "components/**/*"
+alwaysApply: true
+---
+
+> ✅ **Все UI-компоненты должны быть построены на основе `shadcn/ui`.**  
+> Устанавливай через: `pnpm dlx shadcn-ui@latest add button input card form ...`
+> 
+> 📌 Пример:
+> ```tsx
+> import { Button } from '@/components/ui/button';
+> import { Input } from '@/components/ui/input';
+> import { Card, CardContent } from '@/components/ui/card';
+> import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+> ```
+> 
+> 🚫 Запрещено использовать:
+> - Material UI, Ant Design, Chakra UI
+> - Самописные стили без Tailwind
+> - Глобальные CSS (кроме `app/globals.css`)
+> - Кастомные классы, если есть компонент в shadcn/ui
+> 
+> ✅ Используй Tailwind для кастомизации: `className="text-red-500"`

@@ -1,0 +1,22 @@
+---
+description: "Семантические коммиты и привязка к specs/history.md"
+globs:
+  - "**/*"
+alwaysApply: false
+---
+
+> При создании коммита — используй семантические сообщения:
+> - `feat(module): описание [ref: YYYYMMDD-NN]`
+> - `fix(module): описание [ref: YYYYMMDD-NN]`
+> - `chore(infra): описание`
+> - `refactor(module): описание`
+> 
+> Пример:
+> ```bash
+> git commit -m "feat(auth): telegram login via edge function [ref: 20250907-01]"
+> ```
+> 
+> → В `specs/history.md` должна быть запись с этим ID и ссылкой на коммит.
+> 
+> ✅ Всегда обновляй `specs/history.md` после реализации шага.
+> ✅ Ссылайся на коммит в записи истории.

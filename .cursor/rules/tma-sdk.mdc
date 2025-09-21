@@ -1,0 +1,27 @@
+---
+description: "Обязательно использовать @tma.js/sdk для интеграции с Telegram"
+globs:
+  - "app/**/*"
+  - "components/**/*"
+alwaysApply: true
+---
+
+> ✅ **Все компоненты, работающие с Telegram, должны использовать:**
+> - `useInitData()` — для получения данных пользователя
+> - `useThemeParams()` — для стилей под тему Telegram
+> - `useViewport()` — для управления viewport
+> - `useBackButton()` — для навигации
+> 
+> 📌 Пример:
+> ```tsx
+> 'use client';
+> import { useInitData } from '@tma.js/sdk';
+> 
+> export default function LoginPage() {
+>   const { initDataRaw } = useInitData();
+>   // ... отправить на /api/auth/telegram
+> }
+> ```
+> 
+> 🚫 Не используй ручную обработку `window.Telegram.WebApp` — только через SDK.
+> 🚫 Не используй `Telegram.WebApp.initData` напрямую — только через хуки SDK.
